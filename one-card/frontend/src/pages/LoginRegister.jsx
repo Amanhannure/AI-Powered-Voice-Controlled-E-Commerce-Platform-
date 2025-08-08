@@ -5,12 +5,19 @@ import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { firebaseApp } from "../services/firebaseConfig";
 import axios from "axios";
 import './LoginRegister.css';
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
+
 
 const LoginRegister = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
 
+  const { login} = useContext(AuthContext);
+
+  
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setMessage("");
@@ -32,7 +39,7 @@ const LoginRegister = () => {
 
     if (data.success) {
       setMessage("Google login successful!");
-      localStorage.setItem("authToken", data.token);
+      login(data.token);
       // TODO: redirect or update UI
     } else {
       setMessage(data.message || "Google login failed.");
@@ -56,7 +63,7 @@ const LoginRegister = () => {
         });
         if (data.success) {
           setMessage("Login successful!");
-          localStorage.setItem("authToken", data.token);
+          login(data.token);
           // TODO: redirect or update UI after login
         } else {
           setMessage(data.message || "Login failed, please try again.");
