@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    isGoogle: { 
+      type: Boolean, 
+      default: false 
+    },
     cartData: {
       type: Object,
       default: {}

@@ -1,6 +1,8 @@
 // src/pages/LoginRegister.jsx
 
 import React, { useState } from "react";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { firebaseApp } from "../services/firebaseConfig";
 import axios from "axios";
 import './LoginRegister.css';
 
@@ -19,6 +21,29 @@ const LoginRegister = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+  const handleGoogleLogin = async () => {
+  try {
+    const auth = getAuth(firebaseApp);
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const idToken = await result.user.getIdToken();
+
+    const { data } = await axios.post("http://localhost:8000/api/user/google-login", { idToken });
+
+    if (data.success) {
+      setMessage("Google login successful!");
+      localStorage.setItem("authToken", data.token);
+      // TODO: redirect or update UI
+    } else {
+      setMessage(data.message || "Google login failed.");
+    }
+  } catch (err) {
+    setMessage("Google login error. Try again.");
+  }
+};
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,6 +128,15 @@ const LoginRegister = () => {
         <button type="submit" style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px" }}>
           {isLogin ? "Login" : "Register"}
         </button>
+        <button
+          type="button"
+          className="auth-button"
+          onClick={handleGoogleLogin}
+          style={{ marginTop: 12, background: "#db4437" }}
+        >
+          Sign in with Google
+        </button>
+
       </form>
       <p style={{ marginTop: "15px", textAlign: "center" }}>
         {isLogin ? "Don't have an account? " : "Already have an account? "}
